@@ -109,7 +109,7 @@ const reportHazard = async () => {
       };
 
       try {
-        const res = await fetch('/api/report', {
+        const res = await fetch('/api/zones', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newEntry)
