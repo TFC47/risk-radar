@@ -90,10 +90,38 @@ export default function Home() {
     }
   };
 
-  const reportHazard = () => {
-    const location = window.prompt("ENTER ANOMALY LOCATION:");
-    if (location) {
-      alert(`[SECURE TRANSMISSION SENT]\nAnomaly at ${location} logged for drone verification.`);
+const reportHazard = async () => {
+    const loc = window.prompt("ENTER ACCIDENT LOCATION NAME:");
+    const accidents = window.prompt("NUMBER OF ACCIDENTS DETECTED:");
+    
+    if (loc && accidents) {
+      const newEntry = {
+        id: `Z-0${zones.length + 1}`,
+        location: loc,
+        coordinates: { 
+          lat: (13.0 + Math.random() * 0.1).toFixed(4), 
+          lng: (80.2 + Math.random() * 0.1).toFixed(4) 
+        },
+        risk_level: parseInt(accidents) > 20 ? "CRITICAL" : "HIGH",
+        historical_accidents: parseInt(accidents),
+        real_time_factor: "LIVE_REPORT_VERIFIED",
+        warning_message: "Emergency response units notified. Proceed with caution."
+      };
+
+      try {
+        const res = await fetch('/api/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newEntry)
+        });
+
+        if (res.ok) {
+          alert("UPLINK SUCCESSFUL: DATA INJECTED TO CLOUD");
+          window.location.reload(); 
+        }
+      } catch (err) {
+        alert("UPLINK FAILED: CHECK CONNECTION");
+      }
     }
   };
 
