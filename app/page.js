@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -24,6 +24,9 @@ export default function Home() {
   const [uptime, setUptime] = useState(0);
   const [booting, setBooting] = useState(true);
 
+  // QUEST 3: ANTI-SPAM NOTIFICATION TRACKER
+  const notifiedZones = useRef(new Set());
+
   const fetchZones = async (isInitial = false) => {
     try {
       const res = await fetch('/api/zones');
@@ -33,6 +36,21 @@ export default function Home() {
       setIsOffline(false);
       const timestamp = new Date().toLocaleTimeString();
       setLastSynced(timestamp);
+
+      // QUEST 3: PROACTIVE NOTIFICATION LOGIC
+      data.forEach(zone => {
+        if (zone.risk_level === 'CRITICAL' && !notifiedZones.current.has(zone.id)) {
+          if (typeof window !== 'undefined' && Notification.permission === 'granted') {
+            new Notification(`🚨 CRITICAL THREAT: ${zone.location}`, {
+              body: `Risk Score: ${zone.risk_score || 88}%. ${zone.warning_message}`,
+              icon: '/favicon.ico'
+            });
+            notifiedZones.current.add(zone.id);
+            setLiveLog(`ALERT_TRIGGERED: ${zone.location} [NOTIFICATION_SENT]`);
+          }
+        }
+      });
+
       localStorage.setItem('riskRadarData', JSON.stringify(data));
       localStorage.setItem('riskRadarTimestamp', timestamp);
     } catch (error) {
@@ -49,6 +67,11 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // QUEST 3: REQUEST BROWSER PERMISSION ON LOAD
+    if (typeof window !== 'undefined' && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
     const bootTimer = setTimeout(() => setBooting(false), 1500);
     const actions = ["INGESTING WEATHER API...", "SCANNING TRAFFIC CAM FEED 04...", "CALCULATING COLLISION PROBABILITY...", "UPDATING SATELLITE TELEMETRY...", "MONITORING WATERLOGGING SENSORS..."];
     
