@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'rechar
 
 const TacticalMap = dynamic(() => import('../components/TacticalMap'), { 
   ssr: false,
-  loading: () => <div className="h-[350px] w-full border border-zinc-800 bg-zinc-950 flex items-center justify-center text-green-500 animate-pulse text-xs tracking-widest mb-6">ESTABLISHING SATELLITE CONNECTION...</div>
+  loading: () => <div className="h-[350px] w-full border border-zinc-800 bg-zinc-950 flex items-center justify-center text-green-500 text-xs tracking-widest mb-6">ESTABLISHING SATELLITE CONNECTION...</div>
 });
 
 export default function Home() {
@@ -152,11 +152,11 @@ export default function Home() {
   if (booting) {
     return (
       <main className="min-h-screen bg-black text-green-500 font-mono flex flex-col items-start justify-end p-8 pb-20">
-        <div className="animate-pulse space-y-2">
+        <div className="space-y-2">
           <p>&gt; MOUNTING VIRTUAL FILESYSTEM...</p>
           <p>&gt; ESTABLISHING MONGODB UPLINK...</p>
           <p>&gt; DECRYPTING TELEMETRY STREAMS...</p>
-          <p className="font-bold text-white">&gt; LAUNCHING RISK_RADAR KERNEL <span className="animate-ping">█</span></p>
+          <p className="font-bold text-white">&gt; LAUNCHING RISK_RADAR KERNEL █</p>
         </div>
       </main>
     );
@@ -164,7 +164,7 @@ export default function Home() {
 
   return (
     <main className={`min-h-screen font-mono transition-colors duration-700 selection:bg-green-500 selection:text-black ${disasterMode ? 'bg-red-950/20' : 'bg-black'} p-4 md:p-8 relative`}>
-      <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20"></div>
+      {/* SCANLINE OVERLAY REMOVED */}
       <div className="max-w-7xl mx-auto relative z-10">
         <header className="mb-4 border-b border-green-900/50 pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
@@ -175,7 +175,7 @@ export default function Home() {
           </div>
           <div className="text-left md:text-right border border-zinc-800 p-3 bg-zinc-950/50 rounded-sm min-w-[200px]">
             <div className="flex items-center gap-2 justify-start md:justify-end">
-              <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-500' : 'bg-green-500'}`}></div>
               <p className={`text-xs font-bold tracking-wider ${isOffline ? 'text-red-500' : 'text-green-500'}`}>{isOffline ? 'OFFLINE // CACHE' : 'LIVE // POLLING ACTIVE'}</p>
             </div>
             <p className="text-[10px] text-gray-500 mt-1">LAST SYNC: {lastSynced}</p>
@@ -188,7 +188,7 @@ export default function Home() {
 
         <div className="mb-4 flex flex-col md:flex-row gap-2 justify-between items-center text-[10px] md:text-xs font-bold tracking-widest">
           <div className="w-full md:w-2/3 bg-zinc-900 border border-zinc-700 p-2 text-green-400 overflow-hidden whitespace-nowrap flex items-center">
-            <span>&gt; _TERMINAL: {liveLog}</span><span className="ml-1 animate-pulse text-green-500">█</span>
+            <span>&gt; _TERMINAL: {liveLog}</span><span className="ml-1 text-green-500">█</span>
           </div>
           <div className={`w-full md:w-1/3 border p-2 text-center ${isNightOps ? 'bg-orange-950/30 text-orange-400 border-orange-800' : 'bg-blue-950/30 text-blue-400 border-blue-800'}`}>{isNightOps ? '⚠️ NIGHT OPS: VISIBILITY LOW' : 'DAYLIGHT OPS: VISIBILITY OPTIMAL'}</div>
         </div>
@@ -205,11 +205,11 @@ export default function Home() {
             <button onClick={() => setFilter('CRITICAL')} className={`px-4 py-2 text-xs font-bold tracking-wider transition-colors ${filter === 'CRITICAL' ? 'bg-red-600 text-black' : 'bg-black text-red-600 border border-red-900/50 hover:bg-red-950/30'}`}>CRITICAL</button>
             <button onClick={() => setFilter('HIGH')} className={`px-4 py-2 text-xs font-bold tracking-wider transition-colors ${filter === 'HIGH' ? 'bg-orange-500 text-black' : 'bg-black text-orange-500 border border-orange-900/50 hover:bg-orange-950/30'}`}>HIGH</button>
           </div>
-          <button onClick={() => { setDisasterMode(!disasterMode); if(!disasterMode) setFilter('ALL'); }} className={`px-6 py-2 text-xs font-black tracking-widest border-2 transition-all ${disasterMode ? 'bg-red-600 text-white border-red-500 shadow-[0_0_20px_rgba(255,0,0,0.6)] animate-pulse' : 'bg-black text-red-700 border-red-900 hover:text-red-500'}`}>{disasterMode ? 'CANCEL OVERRIDE' : 'DISASTER OVERRIDE PROTOCOL'}</button>
+          <button onClick={() => { setDisasterMode(!disasterMode); if(!disasterMode) setFilter('ALL'); }} className={`px-6 py-2 text-xs font-black tracking-widest border-2 transition-all ${disasterMode ? 'bg-red-600 text-white border-red-500 shadow-[0_0_20px_rgba(255,0,0,0.6)]' : 'bg-black text-red-700 border-red-900 hover:text-red-500'}`}>{disasterMode ? 'CANCEL OVERRIDE' : 'DISASTER OVERRIDE PROTOCOL'}</button>
         </div>
 
         {loading ? (
-          <div className="text-center mt-32 animate-pulse text-xl tracking-widest text-green-600 font-bold">ESTABLISHING SECURE UPLINK...</div>
+          <div className="text-center mt-32 text-xl tracking-widest text-green-600 font-bold">ESTABLISHING SECURE UPLINK...</div>
         ) : (
           <>
             <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -220,7 +220,7 @@ export default function Home() {
                     <p>TEMP: 31°C</p><p>HUMIDITY: 88%</p><p>VIS: 4.2km</p>
                   </div>
                 </div>
-                <p className="mt-4 text-[10px] text-yellow-500 animate-pulse border-t border-blue-900/50 pt-2">⚠️ WARNING: MONSOON DEPRESSION DETECTED.</p>
+                <p className="mt-4 text-[10px] text-yellow-500 border-t border-blue-900/50 pt-2">⚠️ WARNING: MONSOON DEPRESSION DETECTED.</p>
               </div>
               <div className="md:col-span-2 border border-zinc-800 bg-zinc-900/40 p-4 rounded-sm h-[120px]">
                 <h3 className="text-gray-400 font-bold text-[10px] tracking-widest mb-2 flex justify-between"><span>LIVE THREAT ANALYTICS</span><span>TOTAL: {displayZones.length}</span></h3>
@@ -238,14 +238,14 @@ export default function Home() {
 
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
               {displayZones.map((zone) => (
-                <div key={zone.id} className={`bg-black border p-6 relative group transition-all duration-300 ${zone.risk_level === 'CRITICAL' ? 'border-red-900/50' : zone.risk_level === 'HIGH' ? 'border-orange-900/50' : 'border-zinc-800'}`}>
+                <div key={zone.id} className={`bg-black border p-6 relative group transition-all duration-300 ${zone.risk_level === 'CRITICAL' ? 'border-red-900/50 shadow-[0_0_15px_rgba(255,0,0,0.2)]' : zone.risk_level === 'HIGH' ? 'border-orange-900/50' : 'border-zinc-800'}`}>
                   <div className="absolute top-4 right-4 flex flex-col items-center">
                     <span className={`text-2xl font-black ${zone.risk_score > 80 ? 'text-red-500' : zone.risk_score > 50 ? 'text-orange-500' : 'text-yellow-500'}`}>
                       {zone.risk_score || (zone.risk_level === 'CRITICAL' ? 88 : zone.risk_level === 'HIGH' ? 62 : 35)}
                     </span>
                     <span className="text-[8px] text-zinc-600 tracking-tighter">THREAT_INDEX</span>
                   </div>
-                  {zone.risk_level === 'CRITICAL' && <div className="absolute inset-0 border-2 border-red-500 opacity-20 animate-ping rounded-sm pointer-events-none"></div>}
+                  {/* PING ANIMATION REMOVED */}
                   <div className={`absolute top-0 left-0 w-1 h-full ${zone.risk_level === 'CRITICAL' ? 'bg-red-600 shadow-[0_0_10px_rgba(255,0,0,1)]' : zone.risk_level === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-600'}`}></div>
                   <div className="pl-2">
                     <div className="flex justify-between items-start mb-4">
