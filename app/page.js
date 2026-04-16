@@ -102,17 +102,30 @@ export default function Home() {
     }
   };
 
-  const reportHazard = async () => {
+const reportHazard = async () => {
     const loc = window.prompt("ENTER ACCIDENT LOCATION NAME:");
     const accidents = window.prompt("NUMBER OF ACCIDENTS DETECTED:");
     
     if (loc && accidents) {
+      const accCount = parseInt(accidents);
+      
+      // QUEST 2: THE SCORING ENGINE LOGIC
+      // Base: 1 accident = 2 points (Max 60)
+      let score = Math.min(accCount * 2, 60); 
+      // Multiplier: Night adds 15, Daylight adds 0
+      if (isNightOps) score += 15;
+      // Multiplier: Monsoon (Simulated) adds 25
+      score += 25; 
+      
+      const finalScore = Math.min(score, 100); // Hard cap at 100
+
       const newEntry = {
         id: `Z-0${zones.length + 1}`,
         location: loc,
         coordinates: { lat: (13.0 + Math.random() * 0.1).toFixed(4), lng: (80.2 + Math.random() * 0.1).toFixed(4) },
-        risk_level: parseInt(accidents) > 20 ? "CRITICAL" : "HIGH",
-        historical_accidents: parseInt(accidents),
+        risk_level: finalScore > 80 ? "CRITICAL" : finalScore > 50 ? "HIGH" : "MODERATE",
+        risk_score: finalScore, // NEW NUMERICAL FIELD
+        historical_accidents: accCount,
         real_time_factor: "LIVE_REPORT_VERIFIED",
         warning_message: "Emergency response units notified. Proceed with caution."
       };
@@ -125,11 +138,11 @@ export default function Home() {
         });
 
         if (res.ok) {
-          alert("UPLINK SUCCESSFUL: DATA INJECTED TO CLOUD");
-          fetchZones(false); // Instantly trigger a background update
+          alert(`UPLINK SUCCESSFUL: RISK SCORE CALCULATED: ${finalScore}/100`);
+          fetchZones(false);
         }
       } catch (err) {
-        alert("UPLINK FAILED: CHECK CONNECTION");
+        alert("UPLINK FAILED");
       }
     }
   };
@@ -265,35 +278,45 @@ export default function Home() {
 
             {displayZones.length > 0 && <TacticalMap zones={displayZones} />}
 
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-              {displayZones.map((zone) => (
-                <div key={zone.id} className={`bg-black border p-6 relative group transition-all duration-300 ${zone.risk_level === 'CRITICAL' ? 'border-red-900/50' : zone.risk_level === 'HIGH' ? 'border-orange-900/50' : 'border-zinc-800'}`}>
-                  {zone.risk_level === 'CRITICAL' && <div className="absolute inset-0 border-2 border-red-500 opacity-20 animate-ping rounded-sm pointer-events-none"></div>}
-                  <div className={`absolute top-0 left-0 w-1 h-full ${zone.risk_level === 'CRITICAL' ? 'bg-red-600 shadow-[0_0_10px_rgba(255,0,0,1)]' : zone.risk_level === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-600'}`}></div>
-                  <div className="pl-2">
-                    <div className="flex justify-between items-start mb-4">
-                      <h2 className="font-black text-white text-2xl tracking-widest before:content-[''] group-hover:before:content-['['] before:text-green-500 before:mr-1 after:content-[''] group-hover:after:content-[']'] after:text-green-500 after:ml-1 transition-all">{zone.id}</h2>
-                      <span className={`px-2 py-1 text-[10px] font-bold tracking-widest ${zone.risk_level === 'CRITICAL' ? 'bg-red-950 text-red-500' : zone.risk_level === 'HIGH' ? 'bg-orange-950 text-orange-400' : 'bg-yellow-950/30 text-yellow-600'}`}>{zone.risk_level}</span>
-                    </div>
-                    <div className="space-y-3 text-sm tracking-wide text-gray-400">
-                      <p><span className="text-gray-600 text-xs">LOC:</span> <span className="text-gray-200">{zone.location}</span></p>
-                      <p><span className="text-gray-600 text-xs">COORD:</span> {zone.coordinates.lat}, {zone.coordinates.lng}</p>
-                      <div className="mt-4 pt-4 border-t border-zinc-900">
-                        <p className="text-gray-600 text-[10px] mb-1 tracking-widest">REAL-TIME FACTOR</p>
-                        <p className="text-white font-medium">{zone.real_time_factor}</p>
-                      </div>
-                      <div className={`p-3 mt-4 rounded-sm border-l-2 bg-gradient-to-r ${zone.risk_level === 'CRITICAL' ? 'border-red-500 from-red-950/40 to-transparent' : 'border-orange-500 from-orange-950/20 to-transparent'}`}>
-                        <p className={`text-[11px] font-bold tracking-wide ${zone.risk_level === 'CRITICAL' ? 'text-red-400' : 'text-orange-400'}`}>WARNING: {zone.warning_message}</p>
-                      </div>
-                      <button onClick={() => handleDispatch(zone)} className="w-full mt-4 py-2 text-[10px] font-bold tracking-widest border border-zinc-700 text-zinc-400 hover:bg-white hover:text-black transition-colors">SEND TO DISPATCH TERMINAL</button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+  {displayZones.map((zone) => (
+    <div key={zone.id} className={`bg-black border p-6 relative group transition-all duration-300 ${zone.risk_level === 'CRITICAL' ? 'border-red-900/50' : zone.risk_level === 'HIGH' ? 'border-orange-900/50' : 'border-zinc-800'}`}>
+      
+      {/* QUEST 2: NUMERICAL RISK SCORE CIRCLE */}
+      <div className="absolute top-4 right-4 flex flex-col items-center">
+        <span className={`text-2xl font-black ${zone.risk_score > 80 ? 'text-red-500' : zone.risk_score > 50 ? 'text-orange-500' : 'text-yellow-500'}`}>
+          {zone.risk_score || (zone.risk_level === 'CRITICAL' ? 88 : zone.risk_level === 'HIGH' ? 62 : 35)}
+        </span>
+        <span className="text-[8px] text-zinc-600 tracking-tighter">THREAT_INDEX</span>
       </div>
-    </main>
-  );
-}
+
+      {zone.risk_level === 'CRITICAL' && <div className="absolute inset-0 border-2 border-red-500 opacity-20 animate-ping rounded-sm pointer-events-none"></div>}
+      <div className={`absolute top-0 left-0 w-1 h-full ${zone.risk_level === 'CRITICAL' ? 'bg-red-600 shadow-[0_0_10px_rgba(255,0,0,1)]' : zone.risk_level === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-600'}`}></div>
+      
+      <div className="pl-2">
+        <div className="flex justify-between items-start mb-4">
+          <h2 className="font-black text-white text-2xl tracking-widest before:content-[''] group-hover:before:content-['['] before:text-green-500 before:mr-1 after:content-[''] group-hover:after:content-[']'] after:text-green-500 after:ml-1 transition-all">{zone.id}</h2>
+        </div>
+
+        {/* QUEST 2: RISK BAR VISUALIZER */}
+        <div className="w-full bg-zinc-900 h-1 mb-4 overflow-hidden">
+          <div 
+            className={`h-full ${zone.risk_level === 'CRITICAL' ? 'bg-red-600' : 'bg-orange-500'}`} 
+            style={{ width: `${zone.risk_score || (zone.risk_level === 'CRITICAL' ? 88 : 62)}%` }}
+          ></div>
+        </div>
+
+        <div className="space-y-3 text-sm tracking-wide text-gray-400">
+          <p><span className="text-gray-600 text-xs font-bold">ACCIDENTS:</span> <span className="text-gray-200">{zone.historical_accidents}</span></p>
+          <p><span className="text-gray-600 text-xs">LOC:</span> <span className="text-gray-200">{zone.location}</span></p>
+          
+          <div className={`p-3 mt-4 rounded-sm border-l-2 bg-gradient-to-r ${zone.risk_level === 'CRITICAL' ? 'border-red-500 from-red-950/40 to-transparent' : 'border-orange-500 from-orange-950/20 to-transparent'}`}>
+            <p className={`text-[11px] font-bold tracking-wide ${zone.risk_level === 'CRITICAL' ? 'text-red-400' : 'text-orange-400'}`}>WARNING: {zone.warning_message}</p>
+          </div>
+
+          <button onClick={() => handleDispatch(zone)} className="w-full mt-4 py-2 text-[10px] font-bold tracking-widest border border-zinc-700 text-zinc-400 hover:bg-white hover:text-black transition-colors">SEND TO DISPATCH TERMINAL</button>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
