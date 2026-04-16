@@ -24,7 +24,6 @@ export default function Home() {
   const [uptime, setUptime] = useState(0);
   const [booting, setBooting] = useState(true);
 
-  // QUEST 1: SILENT POLLING ARCHITECTURE
   const fetchZones = async (isInitial = false) => {
     try {
       const res = await fetch('/api/zones');
@@ -51,24 +50,15 @@ export default function Home() {
 
   useEffect(() => {
     const bootTimer = setTimeout(() => setBooting(false), 1500);
-
-    const actions = [
-      "INGESTING WEATHER API...", "SCANNING TRAFFIC CAM FEED 04...", 
-      "CALCULATING COLLISION PROBABILITY...", "UPDATING SATELLITE TELEMETRY...",
-      "MONITORING WATERLOGGING SENSORS..."
-    ];
+    const actions = ["INGESTING WEATHER API...", "SCANNING TRAFFIC CAM FEED 04...", "CALCULATING COLLISION PROBABILITY...", "UPDATING SATELLITE TELEMETRY...", "MONITORING WATERLOGGING SENSORS..."];
     
-    // UI Ticker
     const uiInterval = setInterval(() => {
       setLiveLog(`${actions[Math.floor(Math.random() * actions.length)]} [${new Date().toLocaleTimeString()}]`);
       setPing(Math.floor(Math.random() * (45 - 8 + 1) + 8));
       setUptime(prev => prev + 1);
     }, 1000);
 
-    // Initial Fetch
     fetchZones(true);
-
-    // Background Polling (Every 10 seconds)
     const pollInterval = setInterval(() => fetchZones(false), 10000);
 
     return () => {
@@ -102,29 +92,23 @@ export default function Home() {
     }
   };
 
-const reportHazard = async () => {
+  const reportHazard = async () => {
     const loc = window.prompt("ENTER ACCIDENT LOCATION NAME:");
     const accidents = window.prompt("NUMBER OF ACCIDENTS DETECTED:");
     
     if (loc && accidents) {
       const accCount = parseInt(accidents);
-      
-      // QUEST 2: THE SCORING ENGINE LOGIC
-      // Base: 1 accident = 2 points (Max 60)
       let score = Math.min(accCount * 2, 60); 
-      // Multiplier: Night adds 15, Daylight adds 0
       if (isNightOps) score += 15;
-      // Multiplier: Monsoon (Simulated) adds 25
       score += 25; 
-      
-      const finalScore = Math.min(score, 100); // Hard cap at 100
+      const finalScore = Math.min(score, 100);
 
       const newEntry = {
         id: `Z-0${zones.length + 1}`,
         location: loc,
         coordinates: { lat: (13.0 + Math.random() * 0.1).toFixed(4), lng: (80.2 + Math.random() * 0.1).toFixed(4) },
         risk_level: finalScore > 80 ? "CRITICAL" : finalScore > 50 ? "HIGH" : "MODERATE",
-        risk_score: finalScore, // NEW NUMERICAL FIELD
+        risk_score: finalScore,
         historical_accidents: accCount,
         real_time_factor: "LIVE_REPORT_VERIFIED",
         warning_message: "Emergency response units notified. Proceed with caution."
@@ -136,9 +120,8 @@ const reportHazard = async () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newEntry)
         });
-
         if (res.ok) {
-          alert(`UPLINK SUCCESSFUL: RISK SCORE CALCULATED: ${finalScore}/100`);
+          alert(`UPLINK SUCCESSFUL: RISK SCORE: ${finalScore}/100`);
           fetchZones(false);
         }
       } catch (err) {
@@ -160,7 +143,6 @@ const reportHazard = async () => {
     return `${h}:${m}:${s}`;
   };
 
-  // QUEST 1: CHART DATA AGGREGATION
   const chartData = [
     { name: 'CRITICAL', count: displayZones.filter(z => z.risk_level === 'CRITICAL').length, color: '#dc2626' },
     { name: 'HIGH', count: displayZones.filter(z => z.risk_level === 'HIGH').length, color: '#f97316' },
@@ -183,9 +165,7 @@ const reportHazard = async () => {
   return (
     <main className={`min-h-screen font-mono transition-colors duration-700 selection:bg-green-500 selection:text-black ${disasterMode ? 'bg-red-950/20' : 'bg-black'} p-4 md:p-8 relative`}>
       <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20"></div>
-
       <div className="max-w-7xl mx-auto relative z-10">
-        
         <header className="mb-4 border-b border-green-900/50 pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
             <h1 className={`text-4xl md:text-5xl font-extrabold tracking-widest ${disasterMode ? 'text-red-500 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)]' : 'text-white drop-shadow-[0_0_10px_rgba(0,255,0,0.2)]'}`}>
@@ -193,13 +173,10 @@ const reportHazard = async () => {
             </h1>
             <p className="text-xs md:text-sm text-gray-400 mt-2 font-semibold">CODE RUPTORS // SMART MOBILITY ENGINE</p>
           </div>
-          
           <div className="text-left md:text-right border border-zinc-800 p-3 bg-zinc-950/50 rounded-sm min-w-[200px]">
             <div className="flex items-center gap-2 justify-start md:justify-end">
               <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`}></div>
-              <p className={`text-xs font-bold tracking-wider ${isOffline ? 'text-red-500' : 'text-green-500'}`}>
-                {isOffline ? 'OFFLINE // CACHE' : 'LIVE // POLLING ACTIVE'}
-              </p>
+              <p className={`text-xs font-bold tracking-wider ${isOffline ? 'text-red-500' : 'text-green-500'}`}>{isOffline ? 'OFFLINE // CACHE' : 'LIVE // POLLING ACTIVE'}</p>
             </div>
             <p className="text-[10px] text-gray-500 mt-1">LAST SYNC: {lastSynced}</p>
             <div className="flex justify-between md:justify-end gap-4 mt-1">
@@ -213,9 +190,7 @@ const reportHazard = async () => {
           <div className="w-full md:w-2/3 bg-zinc-900 border border-zinc-700 p-2 text-green-400 overflow-hidden whitespace-nowrap flex items-center">
             <span>&gt; _TERMINAL: {liveLog}</span><span className="ml-1 animate-pulse text-green-500">█</span>
           </div>
-          <div className={`w-full md:w-1/3 border p-2 text-center ${isNightOps ? 'bg-orange-950/30 text-orange-400 border-orange-800' : 'bg-blue-950/30 text-blue-400 border-blue-800'}`}>
-            {isNightOps ? '⚠️ NIGHT OPS: VISIBILITY LOW' : 'DAYLIGHT OPS: VISIBILITY OPTIMAL'}
-          </div>
+          <div className={`w-full md:w-1/3 border p-2 text-center ${isNightOps ? 'bg-orange-950/30 text-orange-400 border-orange-800' : 'bg-blue-950/30 text-blue-400 border-blue-800'}`}>{isNightOps ? '⚠️ NIGHT OPS: VISIBILITY LOW' : 'DAYLIGHT OPS: VISIBILITY OPTIMAL'}</div>
         </div>
 
         <div className="mb-6 flex gap-2 overflow-x-auto pb-2 border-b border-zinc-800/50 border-dashed">
@@ -230,13 +205,7 @@ const reportHazard = async () => {
             <button onClick={() => setFilter('CRITICAL')} className={`px-4 py-2 text-xs font-bold tracking-wider transition-colors ${filter === 'CRITICAL' ? 'bg-red-600 text-black' : 'bg-black text-red-600 border border-red-900/50 hover:bg-red-950/30'}`}>CRITICAL</button>
             <button onClick={() => setFilter('HIGH')} className={`px-4 py-2 text-xs font-bold tracking-wider transition-colors ${filter === 'HIGH' ? 'bg-orange-500 text-black' : 'bg-black text-orange-500 border border-orange-900/50 hover:bg-orange-950/30'}`}>HIGH</button>
           </div>
-          
-          <button 
-            onClick={() => { setDisasterMode(!disasterMode); if(!disasterMode) setFilter('ALL'); }} 
-            className={`px-6 py-2 text-xs font-black tracking-widest border-2 transition-all ${disasterMode ? 'bg-red-600 text-white border-red-500 shadow-[0_0_20px_rgba(255,0,0,0.6)] animate-pulse' : 'bg-black text-red-700 border-red-900 hover:text-red-500'}`}
-          >
-            {disasterMode ? 'CANCEL OVERRIDE' : 'DISASTER OVERRIDE PROTOCOL'}
-          </button>
+          <button onClick={() => { setDisasterMode(!disasterMode); if(!disasterMode) setFilter('ALL'); }} className={`px-6 py-2 text-xs font-black tracking-widest border-2 transition-all ${disasterMode ? 'bg-red-600 text-white border-red-500 shadow-[0_0_20px_rgba(255,0,0,0.6)] animate-pulse' : 'bg-black text-red-700 border-red-900 hover:text-red-500'}`}>{disasterMode ? 'CANCEL OVERRIDE' : 'DISASTER OVERRIDE PROTOCOL'}</button>
         </div>
 
         {loading ? (
@@ -248,29 +217,18 @@ const reportHazard = async () => {
                 <div>
                   <h3 className="text-blue-500 font-bold text-[10px] tracking-widest mb-2">ATMOSPHERIC SENSORS // CHENNAI</h3>
                   <div className="flex justify-between text-xs text-blue-300 font-bold">
-                    <p>TEMP: 31°C</p>
-                    <p>HUMIDITY: 88%</p>
-                    <p>VIS: 4.2km</p>
+                    <p>TEMP: 31°C</p><p>HUMIDITY: 88%</p><p>VIS: 4.2km</p>
                   </div>
                 </div>
                 <p className="mt-4 text-[10px] text-yellow-500 animate-pulse border-t border-blue-900/50 pt-2">⚠️ WARNING: MONSOON DEPRESSION DETECTED.</p>
               </div>
-              
-              {/* QUEST 1: RECHARTS LIVE GRAPH */}
               <div className="md:col-span-2 border border-zinc-800 bg-zinc-900/40 p-4 rounded-sm h-[120px]">
-                <h3 className="text-gray-400 font-bold text-[10px] tracking-widest mb-2 flex justify-between">
-                  <span>LIVE THREAT DISTRIBUTION ANALYTICS</span>
-                  <span>TOTAL: {displayZones.length}</span>
-                </h3>
+                <h3 className="text-gray-400 font-bold text-[10px] tracking-widest mb-2 flex justify-between"><span>LIVE THREAT ANALYTICS</span><span>TOTAL: {displayZones.length}</span></h3>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                     <XAxis type="number" hide />
                     <Tooltip cursor={{fill: '#27272a'}} contentStyle={{backgroundColor: '#000', borderColor: '#3f3f46', fontSize: '10px'}} />
-                    <Bar dataKey="count" barSize={20} radius={[0, 4, 4, 0]}>
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Bar>
+                    <Bar dataKey="count" barSize={20} radius={[0, 4, 4, 0]}>{chartData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}</Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -278,45 +236,39 @@ const reportHazard = async () => {
 
             {displayZones.length > 0 && <TacticalMap zones={displayZones} />}
 
-           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-  {displayZones.map((zone) => (
-    <div key={zone.id} className={`bg-black border p-6 relative group transition-all duration-300 ${zone.risk_level === 'CRITICAL' ? 'border-red-900/50' : zone.risk_level === 'HIGH' ? 'border-orange-900/50' : 'border-zinc-800'}`}>
-      
-      {/* QUEST 2: NUMERICAL RISK SCORE CIRCLE */}
-      <div className="absolute top-4 right-4 flex flex-col items-center">
-        <span className={`text-2xl font-black ${zone.risk_score > 80 ? 'text-red-500' : zone.risk_score > 50 ? 'text-orange-500' : 'text-yellow-500'}`}>
-          {zone.risk_score || (zone.risk_level === 'CRITICAL' ? 88 : zone.risk_level === 'HIGH' ? 62 : 35)}
-        </span>
-        <span className="text-[8px] text-zinc-600 tracking-tighter">THREAT_INDEX</span>
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+              {displayZones.map((zone) => (
+                <div key={zone.id} className={`bg-black border p-6 relative group transition-all duration-300 ${zone.risk_level === 'CRITICAL' ? 'border-red-900/50' : zone.risk_level === 'HIGH' ? 'border-orange-900/50' : 'border-zinc-800'}`}>
+                  <div className="absolute top-4 right-4 flex flex-col items-center">
+                    <span className={`text-2xl font-black ${zone.risk_score > 80 ? 'text-red-500' : zone.risk_score > 50 ? 'text-orange-500' : 'text-yellow-500'}`}>
+                      {zone.risk_score || (zone.risk_level === 'CRITICAL' ? 88 : zone.risk_level === 'HIGH' ? 62 : 35)}
+                    </span>
+                    <span className="text-[8px] text-zinc-600 tracking-tighter">THREAT_INDEX</span>
+                  </div>
+                  {zone.risk_level === 'CRITICAL' && <div className="absolute inset-0 border-2 border-red-500 opacity-20 animate-ping rounded-sm pointer-events-none"></div>}
+                  <div className={`absolute top-0 left-0 w-1 h-full ${zone.risk_level === 'CRITICAL' ? 'bg-red-600 shadow-[0_0_10px_rgba(255,0,0,1)]' : zone.risk_level === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-600'}`}></div>
+                  <div className="pl-2">
+                    <div className="flex justify-between items-start mb-4">
+                      <h2 className="font-black text-white text-2xl tracking-widest before:content-[''] group-hover:before:content-['['] before:text-green-500 before:mr-1 after:content-[''] group-hover:after:content-[']'] after:text-green-500 after:ml-1 transition-all">{zone.id}</h2>
+                    </div>
+                    <div className="w-full bg-zinc-900 h-1 mb-4 overflow-hidden">
+                      <div className={`h-full ${zone.risk_level === 'CRITICAL' ? 'bg-red-600' : 'bg-orange-500'}`} style={{ width: `${zone.risk_score || (zone.risk_level === 'CRITICAL' ? 88 : 62)}%` }}></div>
+                    </div>
+                    <div className="space-y-3 text-sm tracking-wide text-gray-400">
+                      <p><span className="text-gray-600 text-xs font-bold">ACCIDENTS:</span> <span className="text-gray-200">{zone.historical_accidents}</span></p>
+                      <p><span className="text-gray-600 text-xs">LOC:</span> <span className="text-gray-200">{zone.location}</span></p>
+                      <div className={`p-3 mt-4 rounded-sm border-l-2 bg-gradient-to-r ${zone.risk_level === 'CRITICAL' ? 'border-red-500 from-red-950/40 to-transparent' : 'border-orange-500 from-orange-950/20 to-transparent'}`}>
+                        <p className={`text-[11px] font-bold tracking-wide ${zone.risk_level === 'CRITICAL' ? 'text-red-400' : 'text-orange-400'}`}>WARNING: {zone.warning_message}</p>
+                      </div>
+                      <button onClick={() => handleDispatch(zone)} className="w-full mt-4 py-2 text-[10px] font-bold tracking-widest border border-zinc-700 text-zinc-400 hover:bg-white hover:text-black transition-colors">SEND TO DISPATCH TERMINAL</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
-
-      {zone.risk_level === 'CRITICAL' && <div className="absolute inset-0 border-2 border-red-500 opacity-20 animate-ping rounded-sm pointer-events-none"></div>}
-      <div className={`absolute top-0 left-0 w-1 h-full ${zone.risk_level === 'CRITICAL' ? 'bg-red-600 shadow-[0_0_10px_rgba(255,0,0,1)]' : zone.risk_level === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-600'}`}></div>
-      
-      <div className="pl-2">
-        <div className="flex justify-between items-start mb-4">
-          <h2 className="font-black text-white text-2xl tracking-widest before:content-[''] group-hover:before:content-['['] before:text-green-500 before:mr-1 after:content-[''] group-hover:after:content-[']'] after:text-green-500 after:ml-1 transition-all">{zone.id}</h2>
-        </div>
-
-        {/* QUEST 2: RISK BAR VISUALIZER */}
-        <div className="w-full bg-zinc-900 h-1 mb-4 overflow-hidden">
-          <div 
-            className={`h-full ${zone.risk_level === 'CRITICAL' ? 'bg-red-600' : 'bg-orange-500'}`} 
-            style={{ width: `${zone.risk_score || (zone.risk_level === 'CRITICAL' ? 88 : 62)}%` }}
-          ></div>
-        </div>
-
-        <div className="space-y-3 text-sm tracking-wide text-gray-400">
-          <p><span className="text-gray-600 text-xs font-bold">ACCIDENTS:</span> <span className="text-gray-200">{zone.historical_accidents}</span></p>
-          <p><span className="text-gray-600 text-xs">LOC:</span> <span className="text-gray-200">{zone.location}</span></p>
-          
-          <div className={`p-3 mt-4 rounded-sm border-l-2 bg-gradient-to-r ${zone.risk_level === 'CRITICAL' ? 'border-red-500 from-red-950/40 to-transparent' : 'border-orange-500 from-orange-950/20 to-transparent'}`}>
-            <p className={`text-[11px] font-bold tracking-wide ${zone.risk_level === 'CRITICAL' ? 'text-red-400' : 'text-orange-400'}`}>WARNING: {zone.warning_message}</p>
-          </div>
-
-          <button onClick={() => handleDispatch(zone)} className="w-full mt-4 py-2 text-[10px] font-bold tracking-widest border border-zinc-700 text-zinc-400 hover:bg-white hover:text-black transition-colors">SEND TO DISPATCH TERMINAL</button>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
+    </main>
+  );
+}
