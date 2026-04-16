@@ -1,5 +1,12 @@
 "use client";
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+
+// DYNAMIC MAP IMPORT (Prevents server-side crash)
+const TacticalMap = dynamic(() => import('../components/TacticalMap'), { 
+  ssr: false,
+  loading: () => <div className="h-[350px] w-full border border-zinc-800 bg-zinc-950 flex items-center justify-center text-green-500 animate-pulse text-xs tracking-widest mb-6">ESTABLISHING SATELLITE CONNECTION...</div>
+});
 
 export default function Home() {
   const [zones, setZones] = useState([]);
@@ -16,7 +23,7 @@ export default function Home() {
   const [ping, setPing] = useState(12);
   const [uptime, setUptime] = useState(0);
   
-  // NEW FEATURE 5: Secure Boot Sequence
+  // Feature 5: Secure Boot Sequence
   const [booting, setBooting] = useState(true);
 
   useEffect(() => {
@@ -90,7 +97,7 @@ export default function Home() {
     }
   };
 
-const reportHazard = async () => {
+  const reportHazard = async () => {
     const loc = window.prompt("ENTER ACCIDENT LOCATION NAME:");
     const accidents = window.prompt("NUMBER OF ACCIDENTS DETECTED:");
     
@@ -152,7 +159,6 @@ const reportHazard = async () => {
     );
   }
 
-  // Feature 2: Tactical Text Selection applied to main container
   return (
     <main className={`min-h-screen font-mono transition-colors duration-700 selection:bg-green-500 selection:text-black ${disasterMode ? 'bg-red-950/20' : 'bg-black'} p-4 md:p-8 relative`}>
       
@@ -186,7 +192,7 @@ const reportHazard = async () => {
 
         <div className="mb-4 flex flex-col md:flex-row gap-2 justify-between items-center text-[10px] md:text-xs font-bold tracking-widest">
           <div className="w-full md:w-2/3 bg-zinc-900 border border-zinc-700 p-2 text-green-400 overflow-hidden whitespace-nowrap flex items-center">
-            {/* Feature 4: Cyber-Terminal Cursor */}
+            {/* Cyber-Terminal Cursor */}
             <span>&gt; _TERMINAL: {liveLog}</span><span className="ml-1 animate-pulse text-green-500">█</span>
           </div>
           <div className={`w-full md:w-1/3 border p-2 text-center ${isNightOps ? 'bg-orange-950/30 text-orange-400 border-orange-800' : 'bg-blue-950/30 text-blue-400 border-blue-800'}`}>
@@ -218,65 +224,96 @@ const reportHazard = async () => {
         {loading ? (
           <div className="text-center mt-32 animate-pulse text-xl tracking-widest text-green-600 font-bold">ESTABLISHING SECURE UPLINK...</div>
         ) : (
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-            {displayZones.map((zone) => (
-              <div key={zone.id} className={`bg-black border p-6 relative group transition-all duration-300 ${
-                zone.risk_level === 'CRITICAL' ? 'border-red-900/50' : 
-                zone.risk_level === 'HIGH' ? 'border-orange-900/50' : 'border-zinc-800'
-              }`}>
-                
-                {zone.risk_level === 'CRITICAL' && (
-                  <div className="absolute inset-0 border-2 border-red-500 opacity-20 animate-ping rounded-sm pointer-events-none"></div>
-                )}
-
-                <div className={`absolute top-0 left-0 w-1 h-full ${
-                  zone.risk_level === 'CRITICAL' ? 'bg-red-600 shadow-[0_0_10px_rgba(255,0,0,1)]' : 
-                  zone.risk_level === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-600'
-                }`}></div>
-
-                <div className="pl-2">
-                  <div className="flex justify-between items-start mb-4">
-                    {/* Feature 3: Hover Target Lock Brackets applied here via 'before:' and 'after:' */}
-                    <h2 className="font-black text-white text-2xl tracking-widest before:content-[''] group-hover:before:content-['['] before:text-green-500 before:mr-1 after:content-[''] group-hover:after:content-[']'] after:text-green-500 after:ml-1 transition-all">
-                      {zone.id}
-                    </h2>
-                    <span className={`px-2 py-1 text-[10px] font-bold tracking-widest ${
-                      zone.risk_level === 'CRITICAL' ? 'bg-red-950 text-red-500' : 
-                      zone.risk_level === 'HIGH' ? 'bg-orange-950 text-orange-400' : 'bg-yellow-950/30 text-yellow-600'
-                    }`}>
-                      {zone.risk_level}
-                    </span>
-                  </div>
-
-                  <div className="space-y-3 text-sm tracking-wide text-gray-400">
-                    <p><span className="text-gray-600 text-xs">LOC:</span> <span className="text-gray-200">{zone.location}</span></p>
-                    <p><span className="text-gray-600 text-xs">COORD:</span> {zone.coordinates.lat}, {zone.coordinates.lng}</p>
-                    
-                    <div className="mt-4 pt-4 border-t border-zinc-900">
-                      <p className="text-gray-600 text-[10px] mb-1 tracking-widest">REAL-TIME FACTOR</p>
-                      <p className="text-white font-medium">{zone.real_time_factor}</p>
-                    </div>
-                    
-                    <div className={`p-3 mt-4 rounded-sm border-l-2 bg-gradient-to-r ${
-                      zone.risk_level === 'CRITICAL' ? 'border-red-500 from-red-950/40 to-transparent' : 
-                      'border-orange-500 from-orange-950/20 to-transparent'
-                    }`}>
-                      <p className={`text-[11px] font-bold tracking-wide ${zone.risk_level === 'CRITICAL' ? 'text-red-400' : 'text-orange-400'}`}>
-                        WARNING: {zone.warning_message}
-                      </p>
-                    </div>
-
-                    <button 
-                      onClick={() => handleDispatch(zone)}
-                      className="w-full mt-4 py-2 text-[10px] font-bold tracking-widest border border-zinc-700 text-zinc-400 hover:bg-white hover:text-black transition-colors"
-                    >
-                      SEND TO DISPATCH TERMINAL
-                    </button>
-                  </div>
+          <>
+            {/* NEW FEATURE: ATMOSPHERIC SENSORS & ANALYTICS MATRIX */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="border border-blue-900 bg-blue-950/20 p-4 rounded-sm">
+                <h3 className="text-blue-500 font-bold text-[10px] tracking-widest mb-2">ATMOSPHERIC SENSORS // CHENNAI</h3>
+                <div className="flex justify-between text-xs text-blue-300 font-bold">
+                  <p>TEMP: 31°C</p>
+                  <p>HUMIDITY: 88%</p>
+                  <p>VIS: 4.2km</p>
+                </div>
+                <p className="mt-2 text-[10px] text-yellow-500 animate-pulse border-t border-blue-900/50 pt-2">⚠️ WARNING: MONSOON DEPRESSION DETECTED.</p>
+              </div>
+              
+              <div className="md:col-span-2 border border-zinc-800 bg-zinc-900/40 p-4 rounded-sm flex flex-col justify-center">
+                <h3 className="text-gray-400 font-bold text-[10px] tracking-widest mb-2 flex justify-between">
+                  <span>THREAT DISTRIBUTION MATRIX</span>
+                  <span>TOTAL ZONES: {displayZones.length}</span>
+                </h3>
+                <div className="flex h-4 w-full bg-black border border-zinc-700 overflow-hidden">
+                  <div style={{ width: `${displayZones.length > 0 ? (displayZones.filter(z => z.risk_level === 'CRITICAL').length / displayZones.length) * 100 : 0}%` }} className="bg-red-600"></div>
+                  <div style={{ width: `${displayZones.length > 0 ? (displayZones.filter(z => z.risk_level === 'HIGH').length / displayZones.length) * 100 : 0}%` }} className="bg-orange-500"></div>
+                  <div style={{ width: `${displayZones.length > 0 ? (displayZones.filter(z => z.risk_level === 'MODERATE').length / displayZones.length) * 100 : 0}%` }} className="bg-yellow-600"></div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+
+            {/* NEW FEATURE: TACTICAL GPS MAP */}
+            {displayZones.length > 0 && <TacticalMap zones={displayZones} />}
+
+            {/* ORIGINAL DATA GRID */}
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+              {displayZones.map((zone) => (
+                <div key={zone.id} className={`bg-black border p-6 relative group transition-all duration-300 ${
+                  zone.risk_level === 'CRITICAL' ? 'border-red-900/50' : 
+                  zone.risk_level === 'HIGH' ? 'border-orange-900/50' : 'border-zinc-800'
+                }`}>
+                  
+                  {zone.risk_level === 'CRITICAL' && (
+                    <div className="absolute inset-0 border-2 border-red-500 opacity-20 animate-ping rounded-sm pointer-events-none"></div>
+                  )}
+
+                  <div className={`absolute top-0 left-0 w-1 h-full ${
+                    zone.risk_level === 'CRITICAL' ? 'bg-red-600 shadow-[0_0_10px_rgba(255,0,0,1)]' : 
+                    zone.risk_level === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-600'
+                  }`}></div>
+
+                  <div className="pl-2">
+                    <div className="flex justify-between items-start mb-4">
+                      {/* Hover Target Lock Brackets */}
+                      <h2 className="font-black text-white text-2xl tracking-widest before:content-[''] group-hover:before:content-['['] before:text-green-500 before:mr-1 after:content-[''] group-hover:after:content-[']'] after:text-green-500 after:ml-1 transition-all">
+                        {zone.id}
+                      </h2>
+                      <span className={`px-2 py-1 text-[10px] font-bold tracking-widest ${
+                        zone.risk_level === 'CRITICAL' ? 'bg-red-950 text-red-500' : 
+                        zone.risk_level === 'HIGH' ? 'bg-orange-950 text-orange-400' : 'bg-yellow-950/30 text-yellow-600'
+                      }`}>
+                        {zone.risk_level}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 text-sm tracking-wide text-gray-400">
+                      <p><span className="text-gray-600 text-xs">LOC:</span> <span className="text-gray-200">{zone.location}</span></p>
+                      <p><span className="text-gray-600 text-xs">COORD:</span> {zone.coordinates.lat}, {zone.coordinates.lng}</p>
+                      
+                      <div className="mt-4 pt-4 border-t border-zinc-900">
+                        <p className="text-gray-600 text-[10px] mb-1 tracking-widest">REAL-TIME FACTOR</p>
+                        <p className="text-white font-medium">{zone.real_time_factor}</p>
+                      </div>
+                      
+                      <div className={`p-3 mt-4 rounded-sm border-l-2 bg-gradient-to-r ${
+                        zone.risk_level === 'CRITICAL' ? 'border-red-500 from-red-950/40 to-transparent' : 
+                        'border-orange-500 from-orange-950/20 to-transparent'
+                      }`}>
+                        <p className={`text-[11px] font-bold tracking-wide ${zone.risk_level === 'CRITICAL' ? 'text-red-400' : 'text-orange-400'}`}>
+                          WARNING: {zone.warning_message}
+                        </p>
+                      </div>
+
+                      <button 
+                        onClick={() => handleDispatch(zone)}
+                        className="w-full mt-4 py-2 text-[10px] font-bold tracking-widest border border-zinc-700 text-zinc-400 hover:bg-white hover:text-black transition-colors"
+                      >
+                        SEND TO DISPATCH TERMINAL
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </main>
